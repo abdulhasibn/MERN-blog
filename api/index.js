@@ -18,9 +18,13 @@ app.use("/api/auth", authRoutes);
 
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;
-  const errorMessage = error.message || "Internal Server Error";
+  const message = error.message || "Internal Server Error";
+  const errorCode = error.code;
+  console.log(errorCode);
 
-  res.status(statusCode).json({ success: false, statusCode, errorMessage });
+  res
+    .status(statusCode)
+    .json({ success: false, statusCode, message, errorCode });
 });
 //--------------------------
 
