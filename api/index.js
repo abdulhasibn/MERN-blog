@@ -2,15 +2,21 @@ import express from "express";
 import { config } from "dotenv";
 import mongoose from "mongoose";
 
+import userRoutes from "./routes/user.route.js";
+import authRoutes from "./routes/auth.route.js";
+
 const app = express();
+app.use(express.json());
 config();
 
-app.get("/", (req, res) => {
-  res.json({ msg: "Hello" });
-});
+//--------------------------
+
+app.use("/api/user", userRoutes);
+app.use("/api/auth", authRoutes);
+
+//--------------------------
 
 const PORT = process.env.PORT || 3000;
-
 const MONGO_STRING = process.env.MONGO_STRING;
 
 async function connectToDb() {
