@@ -1,7 +1,8 @@
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import { errorHandler } from "../utils/error.js";
 
-export const signUp = async (req, res) => {
+export const signUp = async (req, res, next) => {
   try {
     const { username, password, email } = req.body;
 
@@ -13,7 +14,7 @@ export const signUp = async (req, res) => {
       password == "" ||
       email == ""
     ) {
-      res.status(405).json({ error: "All fields are required" });
+      next(errorHandler(400, "All fields are required"));
     }
 
     const salt = bcryptjs.genSaltSync();
@@ -29,6 +30,6 @@ export const signUp = async (req, res) => {
 
     res.status(201).json(savedUser);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };

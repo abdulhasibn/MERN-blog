@@ -14,6 +14,14 @@ config();
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 
+//error handling middleware
+
+app.use((error, req, res, next) => {
+  const statusCode = error.statusCode || 500;
+  const errorMessage = error.message || "Internal Server Error";
+
+  res.status(statusCode).json({ success: false, statusCode, errorMessage });
+});
 //--------------------------
 
 const PORT = process.env.PORT || 3000;
