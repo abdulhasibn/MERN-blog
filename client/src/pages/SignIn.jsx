@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Label, TextInput, Button, Alert, Spinner } from "flowbite-react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from "../redux/user/userSlice";
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   function handleChange(e) {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   }
@@ -17,12 +20,10 @@ export default function SignIn() {
     console.log("works");
     e.preventDefault();
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      dispatch(signInStart());
       const { email, password } = formData;
       if (!email || !password) {
-        setLoading(false);
-        return setErrorMessage("All fields are required");
+        return dispatch(signInFailure("Please fill out all the fields"));
       }
       const res = await fetch("/api/auth/signin", {
         method: "POST",
@@ -31,18 +32,18 @@ export default function SignIn() {
       });
       const data = await res.json();
 
-      setLoading(false);
       if (data.success === false) {
         data.statusCode === 403
-          ? setErrorMessage("Email and Password does not match ")
-          : setErrorMessage("User does not exist, trying signing up");
+          ? dispatch(signInFailure("Email and Password does not match "))
+          : dispatch(signInFailure("User does not exist, trying signing up"));
       }
-
-      navigate("/");
+      if (res.ok) {
+        dispatch(signInSuccess(data));
+        navigate("/");
+      }
       console.log(data);
     } catch (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
+      dispatch(signInFailure(error));
     }
   }
   return (
