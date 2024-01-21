@@ -20,7 +20,6 @@ app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;
   const message = error.message || "Internal Server Error";
   const errorCode = error.code;
-  console.log(errorCode);
 
   res
     .status(statusCode)
