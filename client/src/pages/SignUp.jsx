@@ -19,6 +19,7 @@ export default function SignUp() {
       setErrorMessage(null);
       const { username, email, password } = formData;
       if (!username || !email || !password) {
+        setLoading(false);
         return setErrorMessage("All fields are required");
       }
       const res = await fetch("/api/auth/signup", {
@@ -42,6 +43,7 @@ export default function SignUp() {
       console.log(data);
     } catch (error) {
       setErrorMessage(error.message);
+      setLoading(false);
     }
   }
   return (
@@ -110,7 +112,7 @@ export default function SignUp() {
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>Have an account already ?</span>
-            <Link to="sign-in" className="text-blue-500">
+            <Link to="/sign-in" className="text-blue-500">
               Sign In
             </Link>
           </div>
