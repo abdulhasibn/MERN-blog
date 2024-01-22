@@ -10,6 +10,7 @@ import {
 export default function SignIn() {
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector((state) => state.user);
+  console.log(errorMessage);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   function handleChange(e) {
@@ -35,7 +36,7 @@ export default function SignIn() {
       if (data.success === false) {
         data.statusCode === 403
           ? dispatch(signInFailure("Email and Password does not match "))
-          : dispatch(signInFailure("User does not exist, trying signing up"));
+          : dispatch(signInFailure("User does not exist, try signing up"));
       }
       if (res.ok) {
         dispatch(signInSuccess(data));
