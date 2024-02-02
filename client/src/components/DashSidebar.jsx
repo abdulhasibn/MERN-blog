@@ -23,12 +23,13 @@ export default function DashSidebar() {
                 icon={HiUser}
                 label="User"
                 labelColor="dark"
+                as="div"
               >
                 Profile
               </Sidebar.Item>
             </Link>
             <Link to={"/sign-in"}>
-              <Sidebar.Item icon={HiArrowRight} labelColor="dark">
+              <Sidebar.Item icon={HiArrowRight} labelColor="dark" as="div">
                 Sign Out
               </Sidebar.Item>
             </Link>
