@@ -2,6 +2,8 @@ import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/error.js";
+import { validateUsername } from "../utils/validateUsername.js";
+import { getHashedPassword } from "../utils/hashPassword.js";
 
 //Sign Up
 export const signUp = async (req, res, next) => {
@@ -19,18 +21,21 @@ export const signUp = async (req, res, next) => {
       next(errorHandler(400, "All fields are required"));
     }
 
-    const salt = bcryptjs.genSaltSync();
-
-    const hashedPassword = bcryptjs.hashSync(password, salt);
+    try {
+      validateUsername(username);
+    } catch (error) {
+      return next(error);
+    }
+    const hashedPassword = getHashedPassword(password);
     const newUser = new User({
       username,
       password: hashedPassword,
       email,
     });
 
-    const savedUser = await newUser.save();
+    await newUser.save();
 
-    res.status(201).json(savedUser);
+    res.status(201).json("Signed up successfully");
   } catch (error) {
     next(error);
   }
@@ -61,7 +66,7 @@ export async function signIn(req, res, next) {
     const { password: pass, ...rest } = validUser._doc;
     res
       .status(200)
-      .cookie("access-token", token, {
+      .cookie("access_token", token, {
         httpOnly: true,
       })
       .json(rest);
