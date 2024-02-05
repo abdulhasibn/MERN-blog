@@ -5,6 +5,7 @@ import { getHashedPassword } from "../utils/hashPassword.js";
 import User from "../models/user.model.js";
 
 export const updateUser = async (req, res, next) => {
+  console.log("Start");
   const { username, password, profilePicture } = req.body;
   if (req.user.id !== req.params.userId) {
     return next(

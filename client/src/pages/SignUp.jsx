@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Label, TextInput, Button, Alert, Spinner } from "flowbite-react";
 import OAuth from "../components/OAuth";
-
+import { useDispatch } from "react-redux";
+import { signInStart } from "../redux/user/userSlice";
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
@@ -11,9 +12,9 @@ export default function SignUp() {
   function handleChange(e) {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   }
+  const dispatch = useDispatch();
 
   async function handleSubmit(e) {
-    console.log("works");
     e.preventDefault();
     try {
       setLoading(true);
@@ -38,7 +39,9 @@ export default function SignUp() {
         );
       }
       setLoading(false);
-      if (res.ok) {
+      if (!res.ok) {
+        setErrorMessage(data.message);
+      } else {
         navigate("/sign-in");
       }
       console.log(data);
@@ -118,7 +121,11 @@ export default function SignUp() {
               Sign In
             </Link>
           </div>
-          {errorMessage && <Alert color="red">{errorMessage}</Alert>}
+          {errorMessage && (
+            <Alert color="red" className="my-4">
+              {errorMessage}
+            </Alert>
+          )}
         </div>
       </div>
     </div>

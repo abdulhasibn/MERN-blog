@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { TextInput, Button, Alert } from "flowbite-react";
 import {
   getStorage,
@@ -8,6 +8,11 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
+import {
+  updateStart,
+  updateFailure,
+  updateSuccess,
+} from "../redux/user/userSlice";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
@@ -19,9 +24,12 @@ export default function DashProfile() {
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
   const [imageFileUploadingProgress, setImageFileUploadingProgress] =
     useState(0);
+  const [updateUserError, setUpdateUserError] = useState(null);
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+  const [formData, setFormData] = useState({});
 
   const filePickerRef = useRef();
-
+  const dispatch = useDispatch();
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -30,6 +38,49 @@ export default function DashProfile() {
     }
   };
 
+  const handleFormDataChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateUserError(null);
+    setUpdateUserSuccess(null);
+
+    if (Object.entries(formData).length < 1) {
+      setUpdateUserError("No changes made");
+      return;
+    }
+
+    if (imageFileUploading) {
+      setUpdateUserError("Please wait for the image to be uploaded");
+      return;
+    }
+
+    try {
+      dispatch(updateStart());
+
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        dispatch(updateFailure(data.message));
+        setUpdateUserError(data.message);
+      } else {
+        dispatch(updateSuccess(data));
+        setUpdateUserSuccess("Profile Updated Successfully");
+      }
+    } catch (error) {
+      dispatch(updateFailure(error.message));
+      setUpdateUserError(error.message);
+    }
+  };
   function uploadFile() {
     setImageFileUploading(true);
     setImageFileUploadError(null);
@@ -60,6 +111,7 @@ export default function DashProfile() {
           setImageFileUrl(downloadableUrl);
           setImageFileUploading(false);
           setImageFileUploadingProgress(null);
+          setFormData({ ...formData, profilePicture: downloadableUrl });
         });
       }
     );
@@ -73,7 +125,7 @@ export default function DashProfile() {
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="text-3xl my-7 text-center">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input
           type="file"
           accept="image/*"
@@ -125,14 +177,21 @@ export default function DashProfile() {
           id="username"
           placeholder="Username"
           defaultValue={currentUser?.username}
+          onChange={handleFormDataChange}
         />
         <TextInput
           type="email"
           id="email"
           placeholder="Email"
           defaultValue={currentUser?.email}
+          onChange={handleFormDataChange}
         />
-        <TextInput type="password" id="password" placeholder="Password" />
+        <TextInput
+          type="password"
+          id="password"
+          placeholder="Password"
+          onChange={handleFormDataChange}
+        />
 
         <Button type="submit" outline gradientDuoTone="purpleToBlue">
           Update
@@ -141,6 +200,10 @@ export default function DashProfile() {
           <span className="text-red-500 cursor-pointer">Delete Account</span>
           <span className="text-red-500 cursor-pointer">Sign Out</span>
         </div>
+        {updateUserSuccess && (
+          <Alert color={"success"}>{updateUserSuccess}</Alert>
+        )}
+        {updateUserError && <Alert color={"failure"}>{updateUserError}</Alert>}
       </form>
     </div>
   );
