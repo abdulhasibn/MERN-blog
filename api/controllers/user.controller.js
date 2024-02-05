@@ -5,7 +5,6 @@ import { getHashedPassword } from "../utils/hashPassword.js";
 import User from "../models/user.model.js";
 
 export const updateUser = async (req, res, next) => {
-  console.log("Start");
   const { username, password, profilePicture } = req.body;
   if (req.user.id !== req.params.userId) {
     return next(
@@ -18,13 +17,18 @@ export const updateUser = async (req, res, next) => {
   }
 
   try {
-    validateUsername(username);
+    if (username) {
+      validateUsername(username);
+    }
   } catch (error) {
     return next(error);
   }
 
   try {
-    const hashedPassword = getHashedPassword(password);
+    let hashedPassword;
+    if (password) {
+      hashedPassword = getHashedPassword(password);
+    }
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       {

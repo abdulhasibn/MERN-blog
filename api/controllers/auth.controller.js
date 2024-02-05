@@ -124,3 +124,12 @@ export async function googleSignUp(req, res, next) {
     next(error);
   }
 }
+
+export const signout = async (req, res) => {
+  try {
+    res
+      .clearCookie("access_token")
+      .status(200)
+      .json("User has been signed out");
+  } catch (error) {}
+};

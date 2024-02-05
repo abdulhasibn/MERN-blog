@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Label, TextInput, Button, Alert, Spinner } from "flowbite-react";
 import OAuth from "../components/OAuth";
 import { useDispatch } from "react-redux";
-import { errorCleanUp } from "../redux/user/userSlice";
 export default function SignUp() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
@@ -13,7 +12,6 @@ export default function SignUp() {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   }
   const dispatch = useDispatch();
-  dispatch(errorCleanUp());
   async function handleSubmit(e) {
     e.preventDefault();
     try {

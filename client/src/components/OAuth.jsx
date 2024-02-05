@@ -22,7 +22,7 @@ export default function OAuth() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: resultsFromGoogle.user.name,
+          name: resultsFromGoogle.user.displayName,
           email: resultsFromGoogle.user.email,
           googlePhotoUrl: resultsFromGoogle.user.photoURL,
         }),

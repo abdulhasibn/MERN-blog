@@ -5,7 +5,12 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { toggleTheme } from "../redux/theme/themeSlice";
-
+import {
+  signOutFailure,
+  signOutStart,
+  signOutSuccess,
+} from "../redux/user/userSlice";
+import { signOut } from "./DashProfile/utils/signOut";
 export default function Header() {
   const path = useLocation().pathname;
   const { currentUser } = useSelector((state) => state.user);
@@ -17,7 +22,7 @@ export default function Header() {
         to="/"
         className="self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white"
       >
-        <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
+        <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500  to-pink-500 rounded-lg text-white">
           Hasib's
         </span>{" "}
         Blog
@@ -58,12 +63,23 @@ export default function Header() {
                 @{currentUser.email}
               </span>
             </Dropdown.Header>
-            <Link to={"/dashboard"}>
+            <Link to={"/dashboard?tab=profile"}>
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             <Dropdown.Divider />
             <Link to={"/sign-in"}>
-              <Dropdown.Item>Sign Out</Dropdown.Item>
+              <Dropdown.Item
+                onClick={() =>
+                  signOut(
+                    dispatch,
+                    signOutStart,
+                    signOutFailure,
+                    signOutSuccess
+                  )
+                }
+              >
+                Sign Out
+              </Dropdown.Item>
             </Link>
           </Dropdown>
         ) : (
