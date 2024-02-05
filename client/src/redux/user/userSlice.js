@@ -10,7 +10,10 @@ export const userSlice = createSlice({
   name: "User",
   initialState,
   reducers: {
-    signInStart: (state, action) => {
+    errorCleanUp: (state) => {
+      state.error = null;
+    },
+    signInStart: (state) => {
       state.loading = true;
       state.error = null;
     },
@@ -41,6 +44,7 @@ export const userSlice = createSlice({
 });
 
 export const {
+  errorCleanUp,
   signInStart,
   signInSuccess,
   signInFailure,

@@ -23,7 +23,7 @@ export default function DashProfile() {
   const [imageFileUploading, setImageFileUploading] = useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
   const [imageFileUploadingProgress, setImageFileUploadingProgress] =
-    useState(0);
+    useState(null);
   const [updateUserError, setUpdateUserError] = useState(null);
   const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
   const [formData, setFormData] = useState({});
@@ -131,9 +131,9 @@ export default function DashProfile() {
           accept="image/*"
           onChange={handleImageChange}
           ref={filePickerRef}
-          className="hidden"
+          hidden
         />
-        <div className="w-32 h-32 relative rounded-full self-center shadow-md overflow-hidden">
+        <div className="w-32 h-32 relative rounded-full self-center shadow-md overflow-hidden border">
           {imageFileUploadingProgress && (
             <CircularProgressbar
               value={imageFileUploadingProgress}
@@ -151,9 +151,6 @@ export default function DashProfile() {
                   stroke: `rgba(62,152,199, ${
                     imageFileUploadingProgress / 100
                   })`,
-                },
-                text: {
-                  fill: "black",
                 },
               }}
             />
