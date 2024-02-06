@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
+import postRoutes from "./routes/post.route.js";
 
 const app = express();
 app.use(express.json());
@@ -15,6 +16,7 @@ config();
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/post", postRoutes);
 
 //error handling middleware
 
@@ -22,10 +24,9 @@ app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;
   const message = error.message || "Internal Server Error";
   const errorCode = error.code;
-
-  res
-    .status(statusCode)
-    .json({ success: false, statusCode, message, errorCode });
+  const resObject = { success: false, statusCode, message, errorCode };
+  console.error(resObject);
+  res.status(statusCode).json(resObject);
 });
 //--------------------------
 

@@ -61,7 +61,10 @@ export async function signIn(req, res, next) {
       return next(errorHandler(403, "Incorrect Password"));
     }
 
-    const token = jwt.sign({ id: validUser.id }, process.env.JWT_SECRET_STRING);
+    const token = jwt.sign(
+      { id: validUser.id, isAdmin: validUser.isAdmin },
+      process.env.JWT_SECRET_STRING
+    );
 
     const { password: pass, ...rest } = validUser._doc;
     res
