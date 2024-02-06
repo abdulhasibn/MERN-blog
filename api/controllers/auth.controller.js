@@ -109,7 +109,7 @@ export async function googleSignUp(req, res, next) {
       });
       await newUser.save();
       const token = jwt.sign(
-        { id: newUser._id },
+        { id: newUser._id, isAdmin: newUser.isAdmin },
         process.env.JWT_SECRET_STRING
       );
       const { password, ...rest } = newUser._doc;
