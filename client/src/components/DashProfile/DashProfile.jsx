@@ -5,16 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { TextInput, Button, Alert, Modal, Spinner } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useNavigate, Link } from "react-router-dom";
-import {
-  getStorage,
-  getDownloadURL,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-
+import { CircularProgressbar } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 //File imports from the app
 
-import { app } from "../../firebase";
 import {
   updateStart,
   updateFailure,
@@ -27,6 +21,7 @@ import {
   signOutSuccess,
 } from "../../redux/user/userSlice";
 import { signOut } from "./utils/signOut";
+import { uploadFile } from "./utils/uploadFIle";
 
 export default function DashProfile() {
   const { currentUser } = useSelector((state) => state.user);
@@ -141,48 +136,18 @@ export default function DashProfile() {
     }
   };
 
-  //Function to handle image file uploading
-
-  function uploadFile() {
-    setImageFileUploading(true);
-    setImageFileUploadError(null);
-
-    const storage = getStorage(app); //locates the storage of our firebase app
-    const fileName = new Date().getTime() + imageFile.name; //adding the current time to the file name to make it unique
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-    //When the image file is uploading, we need display the circular progress bar around the image
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setImageFileUploadingProgress(progress.toFixed(0));
-      },
-      (error) => {
-        setImageFileUploadError(
-          "Could not upload image (File size might be more than 2 mb)"
-        );
-        setImageFile(null);
-        setImageFileUploadingProgress(null);
-        setImageFileUrl(null);
-        setImageFileUploading(false);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadableUrl) => {
-          setImageFileUrl(downloadableUrl);
-          setImageFileUploading(false);
-          setImageFileUploadingProgress(null);
-          setFormData({ ...formData, profilePicture: downloadableUrl });
-        });
-      }
-    );
-  }
-
   useEffect(() => {
     if (imageFile) {
-      uploadFile();
+      uploadFile(
+        setImageFileUploading,
+        setImageFileUploadError,
+        imageFile,
+        setImageFileUploadingProgress,
+        setImageFile,
+        setImageFileUrl,
+        formData,
+        setFormData
+      );
     }
   }, [imageFile]);
 
