@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { TextInput, Button, Alert, Modal, Spinner } from "flowbite-react";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   getStorage,
   getDownloadURL,
@@ -263,6 +263,12 @@ export default function DashProfile() {
             "Update"
           )}
         </Button>
+        <Link to={"/create-post"}>
+          <Button gradientDuoTone="purpleToBlue" className="w-full">
+            Create Post
+          </Button>
+        </Link>
+
         <div className="flex justify-between">
           <span
             className="text-red-500 cursor-pointer"
