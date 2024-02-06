@@ -87,7 +87,10 @@ export async function googleSignUp(req, res, next) {
     const user = await User.findOne({ email });
 
     if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_STRING);
+      const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET_STRING
+      );
       const { password, ...rest } = user._doc;
       res
         .status(200)
