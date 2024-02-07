@@ -14,7 +14,7 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { app } from "../../firebase";
+import { app } from "../firebase";
 
 //File imports from the app
 
@@ -28,7 +28,7 @@ import {
   signOutFailure,
   signOutStart,
   signOutSuccess,
-} from "../../redux/user/userSlice";
+} from "../redux/user/userSlice";
 import { signOut } from "./utils/signOut";
 
 export default function DashProfile() {
@@ -264,12 +264,13 @@ export default function DashProfile() {
             "Update"
           )}
         </Button>
-        <Link to={"/create-post"}>
-          <Button gradientDuoTone="purpleToBlue" className="w-full">
-            Create Post
-          </Button>
-        </Link>
-
+        {currentUser.isAdmin && (
+          <Link to={"/create-post"}>
+            <Button gradientDuoTone="purpleToBlue" className="w-full">
+              Create Post
+            </Button>
+          </Link>
+        )}
         <div className="flex justify-between">
           <span
             className="text-red-500 cursor-pointer"

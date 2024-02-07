@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Sidebar } from "flowbite-react";
-import { HiUser, HiArrowRight } from "react-icons/hi";
-import { useDispatch } from "react-redux";
+import { HiUser, HiArrowRight, HiDocumentText } from "react-icons/hi";
+import { useDispatch, useSelector } from "react-redux";
 import {
   signOutFailure,
   signOutStart,
   signOutSuccess,
 } from "../redux/user/userSlice";
-import { signOut } from "./DashProfile/utils/signOut";
+import { signOut } from "./utils/signOut";
 export default function DashSidebar() {
   const location = useLocation();
   const [tab, setTab] = useState("");
@@ -20,6 +20,8 @@ export default function DashSidebar() {
       setTab(tabFromUrl);
     }
   }, [location.search]);
+
+  const { currentUser } = useSelector((state) => state.user);
   return (
     <div>
       <Sidebar className="w-full md:w-56">
@@ -36,6 +38,13 @@ export default function DashSidebar() {
                 Profile
               </Sidebar.Item>
             </Link>
+            {currentUser.isAdmin && (
+              <Link to={"/dashboard?tab=posts"}>
+                <Sidebar.Item icon={HiDocumentText} labelColor="dark" as="div">
+                  Posts
+                </Sidebar.Item>
+              </Link>
+            )}
             <Link to={"/sign-in"}>
               <Sidebar.Item
                 icon={HiArrowRight}
