@@ -1,14 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { Table, Spinner } from "flowbite-react";
+import { Table, Spinner, Modal, Button, Alert } from "flowbite-react";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 export default function DashPosts() {
   const [userPosts, setUserPosts] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const { currentUser } = useSelector((state) => state.user);
   const [isLoading, setIsLoading] = useState(false);
-  console.log(userPosts);
+  const [showModal, setShowModal] = useState(false);
+  const [postIdToDelete, setPostIdToDelete] = useState("");
+
+  const handleDeletePost = async () => {
+    const res = await fetch(
+      `api/post/deletePost/${postIdToDelete}/${currentUser._id}`,
+      {
+        method: "DELETE",
+      }
+    );
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.log(data.message);
+    } else {
+      setUserPosts((prev) =>
+        prev.filter((post) => post._id !== postIdToDelete)
+      );
+      if (userPosts.length < 9) {
+        setShowMore(false);
+      }
+    }
+    setShowModal(false);
+  };
+
   const handleShowMore = async () => {
     try {
       setIsLoading(true);
@@ -53,6 +78,7 @@ export default function DashPosts() {
       getUserPosts();
     }
   }, []);
+
   return isLoading ? (
     <div className="text-center m-auto text-2xl">
       <Spinner size="lg" /> <span className="pl-3">Loading..</span>
@@ -91,7 +117,13 @@ export default function DashPosts() {
                       {post?.category[0]?.toLocaleUpperCase() +
                         post?.category?.slice(1)}
                     </Table.Cell>
-                    <Table.Cell className="font-medium text-red-500 hover:underline cursor-pointer">
+                    <Table.Cell
+                      className="font-medium text-red-500 hover:underline cursor-pointer"
+                      onClick={() => {
+                        setPostIdToDelete(post?._id);
+                        setShowModal(true);
+                      }}
+                    >
                       Delete
                     </Table.Cell>
                     <Table.Cell className="font-medium text-blue-500 hover:underline cursor-pointer">
@@ -109,7 +141,7 @@ export default function DashPosts() {
               </div>
             ) : (
               <div
-                className="text-center font-medium text-sm my-3 cursor-pointer hover:underline text-blue-200"
+                className="text-center font-medium text-sm my-3 cursor-pointer hover:underline text-gray-900 dark:text-blue-200"
                 onClick={handleShowMore}
               >
                 Show More
@@ -119,6 +151,34 @@ export default function DashPosts() {
       ) : (
         <p>You do not have any posts yet</p>
       )}
+      <Modal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        popup
+        size="md"
+      >
+        <Modal.Header />
+        <Modal.Body>
+          <div className="tex-center">
+            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
+            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
+              Are you sure you want to delete this account ?
+            </h3>
+            <div className="flex justify-between">
+              <Button color="failure" onClick={handleDeletePost}>
+                Delete
+              </Button>
+              <Button
+                outline
+                color="success"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }
