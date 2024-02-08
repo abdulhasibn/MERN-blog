@@ -11,7 +11,6 @@ export default function DashPosts() {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState("");
-
   const handleDeletePost = async () => {
     const res = await fetch(
       `api/post/deletePost/${postIdToDelete}/${currentUser._id}`,
@@ -127,7 +126,7 @@ export default function DashPosts() {
                       Delete
                     </Table.Cell>
                     <Table.Cell className="font-medium text-blue-500 hover:underline cursor-pointer">
-                      <Link to={`update-post/${post?._id}`}>Edit</Link>
+                      <Link to={`/update-post/${post?._id}`}>Edit</Link>
                     </Table.Cell>
                   </Table.Row>
                 </Table.Body>
