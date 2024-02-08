@@ -49,7 +49,7 @@ export const updateUser = async (req, res, next) => {
 };
 
 export const deleteUser = async (req, res, next) => {
-  if (req.user.id !== req.params.userId) {
+  if (!(req.user.id === req.params.userId || req.user.isAdmin)) {
     return next(
       errorHandler(401, "User is not authorized to perform this action")
     );
