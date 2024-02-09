@@ -87,7 +87,7 @@ export default function DashProfile() {
         dispatch(deleteSuccess());
       }
       setShowModal(false);
-      navigate("/sign-in");
+      navigate("/signIn");
     } catch (error) {
       console.log(error);
       dispatch(deleteFailure(error.message));

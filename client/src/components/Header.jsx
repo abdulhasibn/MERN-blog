@@ -67,7 +67,7 @@ export default function Header() {
               <Dropdown.Item>Profile</Dropdown.Item>
             </Link>
             <Dropdown.Divider />
-            <Link to={"/sign-in"}>
+            <Link to={"/signIn"}>
               <Dropdown.Item
                 onClick={() =>
                   signOut(
@@ -83,7 +83,7 @@ export default function Header() {
             </Link>
           </Dropdown>
         ) : (
-          <Link to="/sign-in">
+          <Link to="/signIn">
             <Button gradientDuoTone="purpleToBlue" outline>
               Sign In
             </Button>

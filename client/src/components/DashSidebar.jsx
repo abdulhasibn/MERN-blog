@@ -65,7 +65,7 @@ export default function DashSidebar() {
                 </Link>
               </>
             )}
-            <Link to={"/sign-in"}>
+            <Link to={"/signIn"}>
               <Sidebar.Item
                 icon={HiArrowRight}
                 labelColor="dark"
