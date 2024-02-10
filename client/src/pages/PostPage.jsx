@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Spinner, Button } from "flowbite-react";
 import { useParams, Link } from "react-router-dom";
+import CallToAction from "../components/CallToAction";
+import CommentBox from "../components/CommentBox";
+import { useSelector } from "react-redux";
+
 export default function PostPage() {
   const [post, setPost] = useState(null);
   const [postError, setPostError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { postSlug } = useParams();
+  const { currentUser } = useSelector((state) => state.user);
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -58,6 +63,9 @@ export default function PostPage() {
           className="p-3 max-w-2xl mx-auto w-full post-content mt-5 text-justify"
           dangerouslySetInnerHTML={{ __html: post.content }}
         ></div>
+        <CallToAction />
+
+        <CommentBox />
       </main>
     )
   );
