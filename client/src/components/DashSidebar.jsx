@@ -29,7 +29,7 @@ export default function DashSidebar() {
   const { currentUser } = useSelector((state) => state.user);
   return (
     <div>
-      <Sidebar className="w-full md:w-56">
+      <Sidebar className="w-full md:w-56 bg-red-500">
         <Sidebar.Items>
           <Sidebar.ItemGroup className="flex flex-col gap-2">
             <Link to={"/dashboard?tab=profile"}>

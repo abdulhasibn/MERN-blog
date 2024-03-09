@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "flowbite-react";
 import { useSelector } from "react-redux";
 
@@ -11,16 +12,25 @@ export default function CommentBox() {
   };
   return (
     <div className="w-full max-w-3xl mx-auto mt-6">
-      <div className="flex gap-2 max-w-3xl w-full text-sm">
-        Signed in as :
-        <span>
-          <img
-            src={currentUser?.profilePicture}
-            className="w-7 h-7 rounded-full"
-          />
-        </span>
-        <span className="text-teal-600">@{currentUser?.username}</span>
-      </div>
+      {currentUser ? (
+        <div className="flex gap-2 max-w-3xl w-full text-sm">
+          Signed in as :
+          <span>
+            <img
+              src={currentUser?.profilePicture}
+              className="w-7 h-7 rounded-full"
+            />
+          </span>
+          <Link to="/dashboard?tab=profile" className="text-teal-600">
+            @{currentUser?.username}
+          </Link>
+        </div>
+      ) : (
+        <div>
+          You must sign to comment.
+          <Link to={"/signIn"}>Sign In</Link>
+        </div>
+      )}
 
       <div className="border mt-3 rounded-lg border-gray-400 p-5 ">
         <form className="flex flex-col gap-5">
