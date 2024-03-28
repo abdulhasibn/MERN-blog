@@ -1,12 +1,28 @@
-import User from "../models/user.model.js";
+import { Request, Response, NextFunction } from "express";
+import { Document } from "mongoose";
+import User from "../models/user.model";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/error.js";
 import { validateUsername } from "../utils/validateUsername.js";
 import { getHashedPassword } from "../utils/hashPassword.js";
 
+interface UserDocument extends Document {
+  username: string;
+  email: string;
+  password: string;
+  profilePicture: string;
+  isAdmin: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 //Sign Up
-export const signUp = async (req, res, next) => {
+export const signUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { username, password, email } = req.body;
 
@@ -43,7 +59,7 @@ export const signUp = async (req, res, next) => {
 
 //Sign In
 
-export async function signIn(req, res, next) {
+export async function signIn(req: Request, res: Response, next: NextFunction) {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -51,7 +67,9 @@ export async function signIn(req, res, next) {
   }
 
   try {
-    const validUser = await User.findOne({ email });
+    const validUser = await User.findOne({
+      email,
+    }).lean();
 
     if (!validUser) {
       return next(errorHandler(404, "User not Found"));
@@ -62,11 +80,11 @@ export async function signIn(req, res, next) {
     }
 
     const token = jwt.sign(
-      { id: validUser.id, isAdmin: validUser.isAdmin },
-      process.env.JWT_SECRET_STRING
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      process.env.JWT_SECRET_STRING as string
     );
 
-    const { password: pass, ...rest } = validUser._doc;
+    const { password: pass, ...rest } = validUser;
     res
       .status(200)
       .cookie("access_token", token, {
@@ -81,7 +99,11 @@ export async function signIn(req, res, next) {
 
 //Adding users signed up using Google OAuth, to the database
 
-export async function googleSignUp(req, res, next) {
+export async function googleSignUp(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { name, email, googlePhotoUrl } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -89,9 +111,9 @@ export async function googleSignUp(req, res, next) {
     if (user) {
       const token = jwt.sign(
         { id: user._id, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET_STRING
+        process.env.JWT_SECRET_STRING as string
       );
-      const { password, ...rest } = user._doc;
+      const { password, ...rest } = user;
       res
         .status(200)
         .cookie("access_token", token, {
@@ -116,9 +138,9 @@ export async function googleSignUp(req, res, next) {
       await newUser.save();
       const token = jwt.sign(
         { id: newUser._id, isAdmin: newUser.isAdmin },
-        process.env.JWT_SECRET_STRING
+        process.env.JWT_SECRET_STRING as string
       );
-      const { password, ...rest } = newUser._doc;
+      const { password, ...rest } = newUser;
       res
         .status(200)
         .cookie("access_token", token, {
@@ -131,7 +153,7 @@ export async function googleSignUp(req, res, next) {
   }
 }
 
-export const signout = async (req, res) => {
+export const signout = async (req: Request, res: Response) => {
   try {
     res
       .clearCookie("access_token")

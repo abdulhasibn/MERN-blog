@@ -1,6 +1,6 @@
 import { errorHandler } from "./error.js";
 
-export const validateUsername = (username, next) => {
+export const validateUsername = (username: string) => {
   if (username.length < 7 || username.length > 20) {
     throw errorHandler(400, "Username must be between 7 and 20 characters");
   }

@@ -1,12 +1,18 @@
 import bcryptjs from "bcryptjs";
+import { Request, Response, NextFunction } from "express";
 import { errorHandler } from "../utils/error.js";
 import { validateUsername } from "../utils/validateUsername.js";
 import { getHashedPassword } from "../utils/hashPassword.js";
 import User from "../models/user.model.js";
+import { ICustomRequest } from "../utils/customTypes.js";
 
-export const updateUser = async (req, res, next) => {
+export const updateUser = async (
+  req: ICustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const { username, password, profilePicture } = req.body;
-  if (req.user.id !== req.params.userId) {
+  if (req.user._id !== req.params.userId) {
     return next(
       errorHandler(403, "User is unauthorized to make these changes")
     );
@@ -41,14 +47,21 @@ export const updateUser = async (req, res, next) => {
       { new: true }
     ).lean();
 
-    delete updatedUser.password;
+    if (updatedUser) {
+      delete updatedUser.password;
+    }
+
     res.status(200).json(updatedUser);
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteUser = async (req, res, next) => {
+export const deleteUser = async (
+  req: ICustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (!(req.user.id === req.params.userId || req.user.isAdmin)) {
     return next(
       errorHandler(401, "User is not authorized to perform this action")
@@ -64,7 +77,11 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
-export const getUsers = async (req, res, next) => {
+export const getUsers = async (
+  req: ICustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (!req.user.isAdmin) {
     return next(
       errorHandler(401, "You are not authorized to perform this operation")
@@ -72,17 +89,18 @@ export const getUsers = async (req, res, next) => {
   }
 
   try {
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = req.query.limit || 9;
+    const startIndex = parseInt(req.query.startIndex as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 9;
     const sortDirection = req.query.order === "asc" ? 1 : -1;
 
     const users = await User.find()
       .sort({ createdAt: sortDirection })
       .skip(startIndex)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     const usersWithoutPassword = users.map((user) => {
-      const { password, ...rest } = user._doc;
+      const { password, ...rest } = user;
       return rest;
     });
 
