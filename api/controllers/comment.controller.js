@@ -49,19 +49,45 @@ export const getAllComments = async (req, res, next) => {
       },
       {
         $project: {
+          _id: 1,
           username: "$userDetails.username",
           userId: 1,
           imgUrl: "$userDetails.profilePicture",
           postId: 1,
           createdAt: 1,
+          numberOfLikes: 1,
           likes: 1,
           content: 1,
         },
       },
     ];
     const commentData = await Comment.aggregate(getAllCommentsPipeline);
-    console.log(commentData, "Comment Data");
     res.status(200).json(commentData);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const updateLikeForComment = async (req, res, next) => {
+  try {
+    const { userId, commentId } = req.query;
+    if (!userId || !commentId) {
+      return next(errorHandler(400, "All fields are required"));
+    }
+
+    const updatedComment = await Comment.findByIdAndUpdate(commentId, {
+      $push: {
+        likes: userId,
+      },
+      $inc: {
+        numberOfLikes: 1,
+      },
+    });
+    if (!updatedComment) {
+      return next(errorHandler(500, "Something went wrong"));
+    }
+
+    res.status(200).json(updatedComment);
   } catch (error) {
     return next(error);
   }

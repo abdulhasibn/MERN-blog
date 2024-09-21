@@ -33,7 +33,6 @@ export default function CommentBox({ postId }) {
     }
   };
   const getAllComments = async (postId) => {
-    console.log("works from 36");
     const res = await fetch(`/api/comment/comment/${postId}`);
     const data = await res.json();
     console.log(data, "data---");
@@ -95,6 +94,7 @@ export default function CommentBox({ postId }) {
           return (
             <Comment
               key={item._id}
+              commentId={item._id}
               userId={item.userId}
               content={item.content}
               createdAt={item.createdAt}
