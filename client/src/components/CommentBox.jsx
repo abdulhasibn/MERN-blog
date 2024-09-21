@@ -1,15 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "flowbite-react";
+import { Button, Textarea } from "flowbite-react";
 import { useSelector } from "react-redux";
+import Comment from "./Comment";
 
-export default function CommentBox() {
+export default function CommentBox({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
-
+  const [comments, setComments] = useState([]);
   const handleCommentChange = (e) => {
     setComment(e.target.value);
   };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (comment.length > 200) {
+      return;
+    }
+    const res = await fetch("/api/comment/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: comment,
+        postId,
+        userId: currentUser._id,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setComment(" ");
+    }
+  };
+  const getAllComments = async (postId) => {
+    console.log("works from 36");
+    const res = await fetch(`/api/comment/comment/${postId}`);
+    const data = await res.json();
+    console.log(data, "data---");
+    if (res.ok) {
+      setComments(data);
+    }
+  };
+  useEffect(() => {
+    getAllComments(postId);
+  }, []);
   return (
     <div className="w-full max-w-3xl mx-auto mt-6">
       {currentUser ? (
@@ -27,29 +61,49 @@ export default function CommentBox() {
         </div>
       ) : (
         <div>
-          You must sign to comment.
-          <Link to={"/signIn"}>Sign In</Link>
+          You must sign in to comment.
+          <Link to={"/signIn"} className="text-teal-500 hover:underline ml-2">
+            Sign In
+          </Link>
         </div>
       )}
 
       <div className="border mt-3 rounded-lg border-gray-400 p-5 ">
-        <form className="flex flex-col gap-5">
-          <textarea
-            name="comment"
-            id="comment"
-            className="w-full bg-gray-100 text-sm rounded-md border border-gray-400 font-serif"
-            placeholder="Add a comment..."
-            onChange={handleCommentChange}
-          ></textarea>
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-gray-400">
-              {200 - comment.length} characters remaining
-            </span>
-            <Button gradientDuoTone={"purpleToBlue"} outline>
-              Submit
-            </Button>
-          </div>
-        </form>
+        {currentUser && (
+          <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+            <Textarea
+              name="comment"
+              id="comment"
+              className="w-full bg-gray-100 text-sm rounded-md border border-gray-400 font-serif"
+              placeholder="Add a comment..."
+              onChange={handleCommentChange}
+              value={comment}
+            ></Textarea>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-400">
+                {200 - comment.length} characters remaining
+              </span>
+              <Button type="submit" gradientDuoTone={"purpleToBlue"} outline>
+                Submit
+              </Button>
+            </div>
+          </form>
+        )}
+      </div>
+      <div className="mt-5 flex flex-col gap-2">
+        {comments?.map((item, id) => {
+          return (
+            <Comment
+              key={item._id}
+              userId={item.userId}
+              content={item.content}
+              createdAt={item.createdAt}
+              likes={item.numberOfLikes}
+              imgUrl={item.imgUrl}
+              username={item.username}
+            />
+          );
+        })}
       </div>
     </div>
   );

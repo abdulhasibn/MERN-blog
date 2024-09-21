@@ -10,7 +10,6 @@ export default function PostPage() {
   const [postError, setPostError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { postSlug } = useParams();
-  const { currentUser } = useSelector((state) => state.user);
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -22,6 +21,7 @@ export default function PostPage() {
           setIsLoading(false);
         } else {
           setPost(data.posts[0]);
+          console.log(data.posts[0]);
           setIsLoading(false);
         }
       } catch (error) {
@@ -65,7 +65,7 @@ export default function PostPage() {
         ></div>
         <CallToAction />
 
-        <CommentBox />
+        <CommentBox postId={post?._id} />
       </main>
     )
   );
