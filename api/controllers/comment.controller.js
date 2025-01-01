@@ -56,8 +56,14 @@ export const getAllComments = async (req, res, next) => {
           postId: 1,
           createdAt: 1,
           numberOfLikes: 1,
-          likes: 1,
           content: 1,
+          isLiked: {
+            $cond: {
+              if: { $in: ["$userId", "$likes"] },
+              then: true,
+              else: false,
+            },
+          },
         },
       },
     ];
@@ -75,20 +81,43 @@ export const updateLikeForComment = async (req, res, next) => {
       return next(errorHandler(400, "All fields are required"));
     }
 
-    const updatedComment = await Comment.findByIdAndUpdate(commentId, {
-      $push: {
-        likes: userId,
-      },
-      $inc: {
-        numberOfLikes: 1,
-      },
-    });
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return next(errorHandler(404, "Comment not found"));
+    }
+
+    const userIdObject = new mongoose.Types.ObjectId(userId);
+    const userIndex = comment.likes.indexOf(userIdObject);
+
+    let updatedComment;
+    if (userIndex === -1) {
+      // User ID not found in likes array, add it and increment likes count
+      updatedComment = await Comment.findByIdAndUpdate(
+        commentId,
+        {
+          $push: { likes: userIdObject },
+          $inc: { numberOfLikes: 1 },
+        },
+        { new: true }
+      );
+    } else {
+      // User ID found in likes array, remove it and decrement likes count
+      updatedComment = await Comment.findByIdAndUpdate(
+        commentId,
+        {
+          $pull: { likes: userIdObject },
+          $inc: { numberOfLikes: -1 },
+        },
+        { new: true }
+      );
+    }
+
     if (!updatedComment) {
       return next(errorHandler(500, "Something went wrong"));
     }
 
     res.status(200).json(updatedComment);
   } catch (error) {
-    return next(error);
+    next(error);
   }
 };

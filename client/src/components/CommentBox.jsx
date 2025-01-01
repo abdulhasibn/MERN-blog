@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button, Textarea } from "flowbite-react";
 import { useSelector } from "react-redux";
 import Comment from "./Comment";
+import { getAllComments } from "./utils/getAllComments.js";
 
 export default function CommentBox({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
@@ -30,18 +31,12 @@ export default function CommentBox({ postId }) {
     const data = await res.json();
     if (res.ok) {
       setComment(" ");
+      getAllComments(postId, setComments);
     }
   };
-  const getAllComments = async (postId) => {
-    const res = await fetch(`/api/comment/comment/${postId}`);
-    const data = await res.json();
-    console.log(data, "data---");
-    if (res.ok) {
-      setComments(data);
-    }
-  };
+
   useEffect(() => {
-    getAllComments(postId);
+    getAllComments(postId, setComments);
   }, []);
   return (
     <div className="w-full max-w-3xl mx-auto mt-6">
@@ -101,6 +96,9 @@ export default function CommentBox({ postId }) {
               likes={item.numberOfLikes}
               imgUrl={item.imgUrl}
               username={item.username}
+              isLiked={item.isLiked}
+              setComments={setComments}
+              postId={postId}
             />
           );
         })}

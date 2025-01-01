@@ -3,6 +3,7 @@ import moment from "moment";
 import { HiHandThumbUp } from "react-icons/hi2";
 import { useSelector } from "react-redux";
 import { FaUserAlt } from "react-icons/fa";
+import { getAllComments } from "./utils/getAllComments";
 
 const Comment = ({
   imgUrl,
@@ -12,6 +13,9 @@ const Comment = ({
   likes,
   userId,
   commentId,
+  isLiked,
+  setComments,
+  postId,
 }) => {
   const { currentUser } = useSelector((state) => state.user);
   const handleLikeButtonClick = async () => {
@@ -27,6 +31,10 @@ const Comment = ({
       );
       const data = await res.json();
       console.log(data);
+      if (res.ok) {
+        console.log("Liked");
+        getAllComments(postId, setComments);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -55,6 +63,7 @@ const Comment = ({
           <HiHandThumbUp
             className="text-slate-500"
             onClick={handleLikeButtonClick}
+            color={`${isLiked ? "blue" : "grey"}`}
           />
           <div className="text-slate-400">{likes} likes</div>
           {currentUser?._id === userId && (
