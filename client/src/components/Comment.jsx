@@ -4,6 +4,7 @@ import { HiHandThumbUp } from "react-icons/hi2";
 import { useSelector } from "react-redux";
 import { FaUserAlt } from "react-icons/fa";
 import { getAllComments } from "./utils/getAllComments";
+import EditComment from "./EditComment";
 
 const Comment = ({
   imgUrl,
@@ -16,6 +17,8 @@ const Comment = ({
   isLiked,
   setComments,
   postId,
+  setEditCommentId,
+  editCommentId,
 }) => {
   const { currentUser } = useSelector((state) => state.user);
   const handleLikeButtonClick = async () => {
@@ -30,7 +33,6 @@ const Comment = ({
         }
       );
       const data = await res.json();
-      console.log(data);
       if (res.ok) {
         console.log("Liked");
         getAllComments(postId, setComments);
@@ -39,6 +41,35 @@ const Comment = ({
       console.log(error);
     }
   };
+
+  const handleEditClick = () => {
+    setEditCommentId(commentId);
+  };
+  const handleEditOnCancel = () => {
+    setEditCommentId(null);
+  };
+  const handleEditOnSave = async (editedComment) => {
+    try {
+      const res = await fetch(`/api/comment/editComment/${commentId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: editedComment,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log("Comment Updated");
+        setEditCommentId(null);
+        getAllComments(postId, setComments);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="flex gap-3 items-center border-b border-slate-300 pb-3">
       {imgUrl ? (
@@ -58,21 +89,30 @@ const Comment = ({
           </div>
           <div>{content || "Sample text"}</div>
         </div>
-
-        <div className="flex gap-2 items-center">
-          <HiHandThumbUp
-            className="text-slate-500"
-            onClick={handleLikeButtonClick}
-            color={`${isLiked ? "blue" : "grey"}`}
+        {editCommentId === commentId ? (
+          <EditComment
+            comment={content}
+            onCancel={handleEditOnCancel}
+            onSave={handleEditOnSave}
           />
-          <div className="text-slate-400">{likes} likes</div>
-          {currentUser?._id === userId && (
-            <div className="flex gap-2 text-blue-500">
-              <p>Edit</p>
-              <p>Delete</p>
-            </div>
-          )}
-        </div>
+        ) : (
+          <div className="flex gap-2 items-center cursor-pointer">
+            <HiHandThumbUp
+              className="text-slate-500"
+              onClick={handleLikeButtonClick}
+              color={`${isLiked ? "blue" : "grey"}`}
+            />
+            <div className="text-slate-400">{likes} likes</div>
+            {currentUser?._id === userId && (
+              <div className="flex gap-2 text-blue-500">
+                <p className="cursor-pointer" onClick={handleEditClick}>
+                  Edit
+                </p>
+                <p className="cursor-pointer">Delete</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

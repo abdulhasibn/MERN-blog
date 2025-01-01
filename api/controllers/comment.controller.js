@@ -19,13 +19,13 @@ export const createComment = async (req, res, next) => {
     next(error);
   }
 };
+
 export const getAllComments = async (req, res, next) => {
   try {
     const { postId } = req.params;
     if (!postId) {
       return next(errorHandler(400, "postId Is required"));
     }
-    console.log(postId);
 
     const getAllCommentsPipeline = [
       {
@@ -119,5 +119,30 @@ export const updateLikeForComment = async (req, res, next) => {
     res.status(200).json(updatedComment);
   } catch (error) {
     next(error);
+  }
+};
+
+export const editComment = async (req, res, next) => {
+  try {
+    const { commentId } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return next(errorHandler(400, "Content is required"));
+    }
+
+    const updatedComment = await Comment.findByIdAndUpdate(
+      commentId,
+      { content },
+      { new: true }
+    );
+
+    if (!updatedComment) {
+      return next(errorHandler(404, "Comment not found"));
+    }
+
+    res.status(200).json(updatedComment);
+  } catch (error) {
+    return next(error);
   }
 };

@@ -4,11 +4,13 @@ import { Button, Textarea } from "flowbite-react";
 import { useSelector } from "react-redux";
 import Comment from "./Comment";
 import { getAllComments } from "./utils/getAllComments.js";
+import EditComment from "./EditComment.jsx";
 
 export default function CommentBox({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [editCommentId, setEditCommentId] = useState(null);
   const handleCommentChange = (e) => {
     setComment(e.target.value);
   };
@@ -87,19 +89,23 @@ export default function CommentBox({ postId }) {
       <div className="mt-5 flex flex-col gap-2">
         {comments?.map((item, id) => {
           return (
-            <Comment
-              key={item._id}
-              commentId={item._id}
-              userId={item.userId}
-              content={item.content}
-              createdAt={item.createdAt}
-              likes={item.numberOfLikes}
-              imgUrl={item.imgUrl}
-              username={item.username}
-              isLiked={item.isLiked}
-              setComments={setComments}
-              postId={postId}
-            />
+            <>
+              <Comment
+                key={item._id}
+                commentId={item._id}
+                userId={item.userId}
+                content={item.content}
+                createdAt={item.createdAt}
+                likes={item.numberOfLikes}
+                imgUrl={item.imgUrl}
+                username={item.username}
+                isLiked={item.isLiked}
+                setComments={setComments}
+                postId={postId}
+                setEditCommentId={setEditCommentId}
+                editCommentId={editCommentId}
+              />
+            </>
           );
         })}
       </div>
