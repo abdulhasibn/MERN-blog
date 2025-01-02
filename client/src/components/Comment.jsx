@@ -42,12 +42,31 @@ const Comment = ({
     }
   };
 
+  const handleDeleteClick = async () => {
+    try {
+      const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log("Comment Deleted");
+        getAllComments(postId, setComments);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleEditClick = () => {
     setEditCommentId(commentId);
   };
   const handleEditOnCancel = () => {
     setEditCommentId(null);
   };
+
   const handleEditOnSave = async (editedComment) => {
     try {
       const res = await fetch(`/api/comment/editComment/${commentId}`, {
@@ -108,7 +127,9 @@ const Comment = ({
                 <p className="cursor-pointer" onClick={handleEditClick}>
                   Edit
                 </p>
-                <p className="cursor-pointer">Delete</p>
+                <p className="cursor-pointer" onClick={handleDeleteClick}>
+                  Delete
+                </p>
               </div>
             )}
           </div>

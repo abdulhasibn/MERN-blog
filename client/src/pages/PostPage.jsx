@@ -4,12 +4,16 @@ import { useParams, Link } from "react-router-dom";
 import CallToAction from "../components/CallToAction";
 import CommentBox from "../components/CommentBox";
 import { useSelector } from "react-redux";
+import ArticleCard from "../components/ArticleCard";
 
 export default function PostPage() {
   const [post, setPost] = useState(null);
+  const [recentArticles, setRecentArticles] = useState([]);
   const [postError, setPostError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { postSlug } = useParams();
+  const { currentUser } = useSelector((state) => state.user);
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -31,6 +35,30 @@ export default function PostPage() {
     };
     fetchPost();
   }, []);
+
+  useEffect(() => {
+    const fetchRecentArticles = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch(
+          `/api/post/getPosts?userId=${currentUser?._id}&limit=3`
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          setPostError(data.message);
+          setIsLoading(false);
+        } else {
+          setRecentArticles(data.posts);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        setPostError(error.message);
+        setIsLoading(false);
+      }
+    };
+    fetchRecentArticles();
+  }, []);
+
   return isLoading ? (
     <div className="text-center m-auto text-2xl">
       <Spinner size="lg" /> <span className="pl-3">Loading..</span>
@@ -66,6 +94,13 @@ export default function PostPage() {
         <CallToAction />
 
         <CommentBox postId={post?._id} />
+
+        <div className="flex justify-between gap-5 my-16">
+          {recentArticles &&
+            recentArticles?.map((item) => {
+              return <ArticleCard article={item} />;
+            })}
+        </div>
       </main>
     )
   );

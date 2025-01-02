@@ -146,3 +146,21 @@ export const editComment = async (req, res, next) => {
     return next(error);
   }
 };
+
+export const deleteComment = async (req, res, next) => {
+  try {
+    const { commentId } = req.params;
+    if (!commentId) {
+      return next(errorHandler(400, "Comment ID is required"));
+    }
+
+    const deletedComment = await Comment.findByIdAndDelete(commentId);
+    if (!deletedComment) {
+      return next(errorHandler(404, "Comment not found"));
+    }
+
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};
